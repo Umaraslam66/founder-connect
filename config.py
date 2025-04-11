@@ -10,3 +10,4 @@ class Config:
         'sqlite:///' + os.path.join(basedir, 'founder_network.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     MAX_INVITES_PER_USER = 3
+    BASE_URL = os.environ.get('BASE_URL') or 'http://web-production-df2a1.up.railway.app'
