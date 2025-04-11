@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block title %}FounderConnect - Trust-Based Networking{% endblock %}
+
+{% block content %}
+    <div class="row">
+        {% if current_user.is_authenticated %}
+            <div class="col-md-8">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h1 class="card-title">Welcome, {{ current_user.name }}!</h1>
+                        <p class="lead">Connect with trusted founders in the Stockholm startup ecosystem.</p>
+                        
+                        <div class="row mt-4">
+                            <div class="col-md-4">
+                                <div class="card text-center bg-light">
+                                    <div class="card-body">
+                                        <h2 class="h4">{{ connections|length }}</h2>
+                                        <p>Connections</p>
+                                        <a href="{{ url_for('connections.list') }}" class="btn btn-sm btn-primary">View All</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card text-center bg-light">
+                                    <div class="card-body">
+                                        <h2 class="h4">{{ pending_requests|length }}</h2>
+                                        <p>Pending Requests</p>
+                                        <a href="{{ url_for('connections.requests') }}" class="btn btn-sm btn-primary">View Requests</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card text-center bg-light">
+                                    <div class="card-body">
+                                        <h2 class="h4">{{ unread_messages }}</h2>
+                                        <p>Unread Messages</p>
+                                        <a href="{{ url_for('messages.inbox') }}" class="btn btn-sm btn-primary">Check Messages</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Your Connections</h2>
+                    </div>
+                    <div class="card-body">
+                        {% if connections %}
+                            <div class="row">
+                                {% for connection in connections[:6] %}
+                                    <div class="col-md-4 mb-3">
+                                        <div class="card h-100">
+                                            <div class="card-body text-center">
+                                                <div class="mb-3">
+                                                    <i class="fa-solid fa-user-circle fa-3x text-primary"></i>
+                                                </div>
+                                                <h3 class="h6">{{ connection.name }}</h3>
+                                                <p class="small text-muted">{{ connection.location }}</p>
+                                                <a href="{{ url_for('profile.view', user_id=connection.id) }}" class="btn btn-sm btn-outline-primary">View Profile</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            {% if connections|length > 6 %}
+                                <div class="text-center mt-3">
+                                    <a href="{{ url_for('connections.list') }}" class="btn btn-primary">View All Connections</a>
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            <p class="text-center">You don't have any connections yet. Start by connecting with other founders!</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Grow Your Network</h2>
+                    </div>
+                    <div class="card-body">
+                        <p>Know someone who would be a valuable addition to our community?</p>
+                        <a href="{{ url_for('auth.invite') }}" class="btn btn-success w-100">Invite a Trusted Founder</a>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Pending Requests</h2>
+                    </div>
+                    <div class="card-body">
+                        {% if pending_requests %}
+                            <ul class="list-group">
+                                {% for request in pending_requests %}
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <strong>{{ request.requester.name }}</strong>
+                                            <small class="d-block text-muted">{{ request.requester.location }}</small>
+                                        </div>
+                                        <div>
+                                            <a href="{{ url_for('profile.view', user_id=request.requester.id) }}" class="btn btn-sm btn-outline-primary">View</a>
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p class="text-center">No pending connection requests.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="col-md-6 offset-md-3 text-center">
+                <h1 class="display-4 mb-4">FounderConnect</h1>
+                <p class="lead mb-5">A trust-based network for founders in Stockholm. Connect with verified entrepreneurs through mutual connections.</p>
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="h4 mb-4">How It Works</h2>
+                        <div class="row text-start">
+                            <div class="col-md-4 mb-3">
+                                <div class="text-center mb-2">
+                                    <i class="fa-solid fa-user-plus fa-2x text-primary"></i>
+                                </div>
+                                <h3 class="h6 text-center">Invitation Only</h3>
+                                <p class="small">Join by invitation from an existing member to ensure network quality.</p>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="text-center mb-2">
+                                    <i class="fa-solid fa-link fa-2x text-primary"></i>
+                                </div>
+                                <h3 class="h6 text-center">Connect</h3>
+                                <p class="small">Build connections with other verified founders in Stockholm.</p>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="text-center mb-2">
+                                    <i class="fa-solid fa-handshake fa-2x text-primary"></i>
+                                </div>
+                                <h3 class="h6 text-center">Collaborate</h3>
+                                <p class="small">Find potential co-founders through mutual connections.</p>
+                            </div>
+                        </div>
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-lg mt-3">Login to Your Account</a>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

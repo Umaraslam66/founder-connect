@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}Invite - FounderConnect{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h1 class="h4 mb-0">Invite Trusted Founders</h1>
+            </div>
+            <div class="card-body">
+                <p>Help grow our trusted network by inviting other founders in Stockholm. Each member can have up to {{ max_invites }} active invitations.</p>
+                
+                {% if can_invite %}
+                    <form method="POST" action="">
+                        {{ form.hidden_tag() }}
+                        <div class="mb-3">
+                            {{ form.email.label(class="form-label") }}
+                            {{ form.email(class="form-control") }}
+                            {% for error in form.email.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.message.label(class="form-label") }}
+                            {{ form.message(class="form-control", rows=3) }}
+                            <div class="form-text">This message will be included in the invitation email.</div>
+                            {% for error in form.message.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            {{ form.submit(class="btn btn-primary") }}
+                        </div>
+                    </form>
+                {% else %}
+                    <div class="alert alert-warning">
+                        <i class="fa-solid fa-exclamation-triangle"></i> You've reached your maximum number of active invitations ({{ max_invites }}). Please wait until some of your invitations have been used before creating new ones.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Your Active Invitations</h2>
+            </div>
+            <div class="card-body">
+                {% if invitations %}
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Invitation Code</th>
+                                    <th>Created</th>
+                                    <th>Status</th>
+                                    <th>Invite Link</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for invitation in invitations %}
+                                <tr>
+                                    <td><code>{{ invitation.code }}</code></td>
+                                    <td>{{ invitation.created_at.strftime('%Y-%m-%d') }}</td>
+                                    <td>
+                                        {% if invitation.used %}
+                                            <span class="badge bg-success">Used</span>
+                                        {% else %}
+                                            <span class="badge bg-warning">Pending</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control form-control-sm" value="{{ url_for('auth.register', code=invitation.code, _external=True) }}" id="invite-link-{{ invitation.id }}" readonly>
+                                            <button class="btn btn-sm btn-outline-secondary" type="button" onclick="copyInviteLink('invite-link-{{ invitation.id }}')">
+                                                <i class="fa-solid fa-copy"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-center">You haven't created any invitations yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function copyInviteLink(elementId) {
+    const copyText = document.getElementById(elementId);
+    copyText.select();
+    copyText.setSelectionRange(0, 99999);
+    navigator.clipboard.writeText(copyText.value);
+    
+    // Show a toast or alert
+    alert("Invitation link copied to clipboard!");
+}
+</script>
+{% endblock %}

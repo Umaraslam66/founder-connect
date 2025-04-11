@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Messages - FounderConnect{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h1 class="h4 mb-0">Messages</h1>
+            </div>
+            <div class="card-body p-0">
+                {% if conversations %}
+                    <div class="list-group list-group-flush">
+                        {% for convo in conversations %}
+                            <a href="{{ url_for('messages.conversation', user_id=convo['partner'].id) }}" class="list-group-item list-group-item-action {% if convo['unread_count'] > 0 %}fw-bold{% endif %}">
+                                <div class="d-flex align-items-center">
+                                    <div class="me-3">
+                                        <i class="fa-solid fa-user-circle fa-3x text-primary"></i>
+                                    </div>
+                                    <div class="flex-grow-1 me-3">
+                                        <div class="d-flex justify-content-between">
+                                            <h2 class="h5 mb-1">{{ convo['partner'].name }}</h2>
+                                            <small class="text-muted">{{ convo['last_message'].created_at.strftime('%b %d, %H:%M') }}</small>
+                                        </div>
+                                        <p class="mb-0 text-truncate" style="max-width: 500px;">
+                                            {% if convo['last_message'].sender_id == current_user.id %}
+                                                <span class="text-muted">You: </span>
+                                            {% endif %}
+                                            {{ convo['last_message'].body }}
+                                        </p>
+                                    </div>
+                                    {% if convo['unread_count'] > 0 %}
+                                        <span class="badge bg-primary rounded-pill">{{ convo['unread_count'] }}</span>
+                                    {% endif %}
+                                </div>
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fa-solid fa-envelope fa-4x text-muted mb-3"></i>
+                        <h2 class="h4">No messages yet</h2>
+                        <p class="text-muted">Start a conversation with your connections.</p>
+                        <a href="{{ url_for('connections.list') }}" class="btn btn-primary mt-2">View Your Connections</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

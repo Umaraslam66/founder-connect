@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}Your Connections - FounderConnect{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-3">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h6 mb-0">Network</h2>
+            </div>
+            <div class="list-group list-group-flush">
+                <a href="{{ url_for('connections.list') }}" class="list-group-item list-group-item-action active">
+                    <i class="fa-solid fa-users me-2"></i> Your Connections
+                </a>
+                <a href="{{ url_for('connections.requests') }}" class="list-group-item list-group-item-action">
+                    <i class="fa-solid fa-user-plus me-2"></i> 
+                    Connection Requests
+                    {% set pending_count = current_user.get_pending_received_requests()|length %}
+                    {% if pending_count > 0 %}
+                        <span class="badge bg-primary rounded-pill float-end">{{ pending_count }}</span>
+                    {% endif %}
+                </a>
+                <a href="{{ url_for('auth.invite') }}" class="list-group-item list-group-item-action">
+                    <i class="fa-solid fa-envelope me-2"></i> Invite People
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-9">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h1 class="h4 mb-0">Your Connections</h1>
+                <span class="badge bg-primary">{{ connections|length }}</span>
+            </div>
+            <div class="card-body">
+                {% if connections %}
+                    <div class="row">
+                        {% for connection in connections %}
+                            <div class="col-md-6 mb-4">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between">
+                                            <div class="d-flex align-items-center">
+                                                <div class="me-3">
+                                                    <i class="fa-solid fa-user-circle fa-3x text-primary"></i>
+                                                </div>
+                                                <div>
+                                                    <h2 class="h5 mb-1">{{ connection.name }}</h2>
+                                                    <p class="text-muted small mb-0">{{ connection.location }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mt-3">
+                                            {% if connection.skills %}
+                                                <div class="mb-2">
+                                                    {% set skill_list = connection.skills.split(',') %}
+                                                    {% for skill in skill_list[:3] %}
+                                                        <span class="badge bg-primary me-1">{{ skill.strip() }}</span>
+                                                    {% endfor %}
+                                                    {% if skill_list|length > 3 %}
+                                                        <span class="badge bg-secondary">+{{ skill_list|length - 3 }}</span>
+                                                    {% endif %}
+                                                </div>
+                                            {% endif %}
+                                            
+                                            <div class="d-flex justify-content-between mt-3">
+                                                <a href="{{ url_for('profile.view', user_id=connection.id) }}" class="btn btn-sm btn-outline-primary">View Profile</a>
+                                                <a href="{{ url_for('messages.conversation', user_id=connection.id) }}" class="btn btn-sm btn-primary">
+                                                    <i class="fa-solid fa-envelope"></i> Message
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fa-solid fa-users fa-4x text-muted mb-3"></i>
+                        <h2 class="h4">No connections yet</h2>
+                        <p class="text-muted">Start building your network by connecting with other founders.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

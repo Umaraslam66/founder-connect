@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Profile - FounderConnect{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header">
+                <h1 class="h4 mb-0">Edit Your Profile</h1>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        {{ form.name.label(class="form-label") }}
+                        {{ form.name(class="form-control") }}
+                        {% for error in form.name.errors %}
+                            <div class="text-danger">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.bio.label(class="form-label") }}
+                        {{ form.bio(class="form-control", rows=4) }}
+                        <div class="form-text">Tell others about yourself, your background, and what you're looking for.</div>
+                        {% for error in form.bio.errors %}
+                            <div class="text-danger">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.skills.label(class="form-label") }}
+                        {{ form.skills(class="form-control") }}
+                        <div class="form-text">List your key skills separated by commas (e.g., Python, Marketing, UX Design)</div>
+                        {% for error in form.skills.errors %}
+                            <div class="text-danger">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.interests.label(class="form-label") }}
+                        {{ form.interests(class="form-control") }}
+                        <div class="form-text">What kind of projects or industries are you interested in?</div>
+                        {% for error in form.interests.errors %}
+                            <div class="text-danger">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.location.label(class="form-label") }}
+                        {{ form.location(class="form-control") }}
+                        <div class="form-text">Where are you based? (Default is Stockholm)</div>
+                        {% for error in form.location.errors %}
+                            <div class="text-danger">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.linkedin_url.label(class="form-label") }}
+                        {{ form.linkedin_url(class="form-control") }}
+                        <div class="form-text">Optional: Add your LinkedIn profile URL</div>
+                        {% for error in form.linkedin_url.errors %}
+                            <div class="text-danger">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('profile.view', user_id=current_user.id) }}" class="btn btn-outline-secondary">Cancel</a>
+                        {{ form.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

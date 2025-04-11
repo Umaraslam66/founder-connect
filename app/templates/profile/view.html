@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+
+{% block title %}{{ user.name }} - Profile{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <i class="fa-solid fa-user-circle fa-5x text-primary"></i>
+                </div>
+                <h1 class="h3">{{ user.name }}</h1>
+                <p class="text-muted">
+                    <i class="fa-solid fa-location-dot"></i> {{ user.location }}
+                </p>
+                
+                {% if user.id != current_user.id %}
+                    <div class="d-grid gap-2">
+                        {% if is_connected %}
+                            <a href="{{ url_for('messages.conversation', user_id=user.id) }}" class="btn btn-primary">
+                                <i class="fa-solid fa-envelope"></i> Message
+                            </a>
+                        {% elif pending_request %}
+                            {% if pending_request.requester_id == current_user.id %}
+                                <button class="btn btn-secondary" disabled>
+                                    <i class="fa-solid fa-clock"></i> Connection Request Sent
+                                </button>
+                            {% else %}
+                                <div class="d-flex gap-2">
+                                    <form action="{{ url_for('connections.accept_request', request_id=pending_request.id) }}" method="post" class="flex-grow-1">
+                                        <button type="submit" class="btn btn-success w-100">
+                                            <i class="fa-solid fa-check"></i> Accept Request
+                                        </button>
+                                    </form>
+                                    <form action="{{ url_for('connections.reject_request', request_id=pending_request.id) }}" method="post">
+                                        <button type="submit" class="btn btn-outline-danger">
+                                            <i class="fa-solid fa-times"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            <form action="{{ url_for('connections.request_connection', user_id=user.id) }}" method="post">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fa-solid fa-user-plus"></i> Connect
+                                </button>
+                            </form>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <a href="{{ url_for('profile.edit') }}" class="btn btn-outline-primary">
+                        <i class="fa-solid fa-edit"></i> Edit Profile
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+        
+        {% if user.linkedin_url %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h6 mb-0">Social Profiles</h2>
+            </div>
+            <div class="card-body">
+                <a href="{{ user.linkedin_url }}" target="_blank" class="btn btn-outline-primary w-100">
+                    <i class="fa-brands fa-linkedin"></i> LinkedIn Profile
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">About</h2>
+            </div>
+            <div class="card-body">
+                {% if user.bio %}
+                    <p>{{ user.bio }}</p>
+                {% else %}
+                    <p class="text-muted">No bio provided.</p>
+                {% endif %}
+                
+                <p class="text-muted small">
+                    Member since {{ user.created_at.strftime('%B %Y') }}
+                </p>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Skills</h2>
+                    </div>
+                    <div class="card-body">
+                        {% if user.skills %}
+                            {% set skill_list = user.skills.split(',') %}
+                            {% for skill in skill_list %}
+                                <span class="badge bg-primary mb-1">{{ skill.strip() }}</span>
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-muted">No skills listed.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Interests</h2>
+                    </div>
+                    <div class="card-body">
+                        {% if user.interests %}
+                            {% set interest_list = user.interests.split(',') %}
+                            {% for interest in interest_list %}
+                                <span class="badge bg-secondary mb-1">{{ interest.strip() }}</span>
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-muted">No interests listed.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        {% if user.id == current_user.id or is_connected %}
+        <div class="card">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Network</h2>
+            </div>
+            <div class="card-body">
+                {% set connections = user.get_connections() %}
+                {% if connections %}
+                    <p>Connected with {{ connections|length }} members</p>
+                    <div class="row">
+                        {% for connection in connections[:6] %}
+                            <div class="col-md-4 mb-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="me-2">
+                                        <i class="fa-solid fa-user-circle fa-2x text-secondary"></i>
+                                    </div>
+                                    <div>
+                                        <a href="{{ url_for('profile.view', user_id=connection.id) }}" class="text-decoration-none">
+                                            {{ connection.name }}
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    
+                    {% if connections|length > 6 %}
+                        <div class="text-center mt-3">
+                            <a href="#" class="btn btn-sm btn-outline-primary">View all connections</a>
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <p class="text-center text-muted">No connections yet.</p>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

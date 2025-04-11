@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}Connection Requests - FounderConnect{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-3">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h6 mb-0">Network</h2>
+            </div>
+            <div class="list-group list-group-flush">
+                <a href="{{ url_for('connections.list') }}" class="list-group-item list-group-item-action">
+                    <i class="fa-solid fa-users me-2"></i> Your Connections
+                </a>
+                <a href="{{ url_for('connections.requests') }}" class="list-group-item list-group-item-action active">
+                    <i class="fa-solid fa-user-plus me-2"></i> 
+                    Connection Requests
+                    {% set pending_count = pending_requests|length %}
+                    {% if pending_count > 0 %}
+                        <span class="badge bg-light text-dark rounded-pill float-end">{{ pending_count }}</span>
+                    {% endif %}
+                </a>
+                <a href="{{ url_for('auth.invite') }}" class="list-group-item list-group-item-action">
+                    <i class="fa-solid fa-envelope me-2"></i> Invite People
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-9">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h1 class="h4 mb-0">Connection Requests</h1>
+                <span class="badge bg-primary">{{ pending_requests|length }}</span>
+            </div>
+            <div class="card-body">
+                {% if pending_requests %}
+                    <div class="list-group">
+                        {% for request in pending_requests %}
+                            <div class="list-group-item list-group-item-action flex-column align-items-start">
+                                <div class="d-flex justify-content-between align-items-center w-100">
+                                    <div class="d-flex align-items-center">
+                                        <div class="me-3">
+                                            <i class="fa-solid fa-user-circle fa-3x text-primary"></i>
+                                        </div>
+                                        <div>
+                                            <h2 class="h5 mb-1">{{ request.requester.name }}</h2>
+                                            <p class="text-muted small mb-0">{{ request.requester.location }}</p>
+                                        </div>
+                                    </div>
+                                    <small class="text-muted">{{ request.created_at.strftime('%b %d, %Y') }}</small>
+                                </div>
+                                
+                                {% if request.requester.skills %}
+                                    <div class="mt-2">
+                                        {% set skill_list = request.requester.skills.split(',') %}
+                                        {% for skill in skill_list[:3] %}
+                                            <span class="badge bg-primary me-1">{{ skill.strip() }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                
+                                <div class="d-flex mt-3">
+                                    <a href="{{ url_for('profile.view', user_id=request.requester.id) }}" class="btn btn-sm btn-outline-primary me-2">View Profile</a>
+                                    <form action="{{ url_for('connections.accept_request', request_id=request.id) }}" method="post" class="me-2">
+                                        <button type="submit" class="btn btn-sm btn-success">
+                                            <i class="fa-solid fa-check"></i> Accept
+                                        </button>
+                                    </form>
+                                    <form action="{{ url_for('connections.reject_request', request_id=request.id) }}" method="post">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="fa-solid fa-times"></i> Decline
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fa-solid fa-user-plus fa-4x text-muted mb-3"></i>
+                        <h2 class="h4">No pending requests</h2>
+                        <p class="text-muted">You don't have any pending connection requests at the moment.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
